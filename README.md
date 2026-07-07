@@ -28,4 +28,49 @@
 ---
 
 ## System Architecture
+<img width="8191" height="6266" alt="Chat Ai-2026-07-07-065501" src="https://github.com/user-attachments/assets/b7f41858-e21f-4ff5-98bf-bffcca50a385" />
+
+
+** เหตุการณ์ที่มาจาก Odoo:**
+1. เอกสารรออนุมัติ → มีปุ่ม Approve/Reject กดได้ (สองทาง — กดแล้วมีผลย้อนกลับไปที่ Odoo)
+2. Activity ถูก Assign → แจ้งเตือนเฉยๆ (ทางเดียว — แค่แจ้งให้รู้ ไม่ต้องทำอะไรตอบกลับ)
+
+---
+
+## รองรับเอกสารหลายประเภท (ไม่ใช่แค่ PO/SO)
+
+เพราะต่อกับ OCA Tier Validation แบบ generic ทำให้รองรับได้ทุก model ที่เปิด Tier Validation ไว้ เช่น Purchase Order, Sale Order, Invoice, Stock Transfer, Stock Request, Asset Request, Batch Payment, Overtime, Vendor Pricelist, RMA Supplier, Loyalty Program — เพิ่ม model ใหม่แทบไม่ต้องแก้โค้ด
+
+---
+
+## Tech Stack
+
+| ส่วน | เทคโนโลยี |
+|---|---|
+| Backend | Python 3.x, FastAPI, Uvicorn |
+| ช่องทาง | LINE Messaging API (Flex Message, Webhook + HMAC signature verify) |
+| แหล่งข้อมูล ERP | Odoo JSON-RPC + Odoo Automation Rule (Webhook trigger) |
+| ระบบอนุมัติ | OCA Tier Validation, Multi Approval |
+| Database | PostgreSQL (ผูก User ↔ LINE, Activity Log) |
+
+---
+
+## Feature เด่น
+
+- **Push แจ้งเตือนทันที** ทั้งเอกสารรออนุมัติและงานที่ถูก assign — ไม่ใช่ต้องเปิดแอปเข้าไปเช็คเอง
+- **รายละเอียดเอกสารครบในแชท** — คู่ค้า ยอดเงิน รายการสินค้า ไม่ต้องเปิด Odoo ดูเพิ่ม
+- **ขอ comment ก่อนยืนยันและไม่อนุมัติทุกครั้ง**  — ไม่มีการอนุมัติเงียบๆ โดยไม่ถาม
+- **รองรับ Tier Validation หลายชั้น** และ Multi Approval — ส่งหาผู้อนุมัติที่ถูกต้องตามลำดับจริง
+- **แจ้งเตือน Activity แยกจากอนุมัติชัดเจน** — แค่บอกให้รู้ ไม่บังคับให้ปิดงานผ่าน LINE (ผู้ใช้ยังต้องไปจัดการต่อใน Odoo)
+- **กันแจ้งเตือนซ้ำ (dedup)** เวลา Odoo ยิง Webhook มาหลายรอบสำหรับเหตุการณ์เดียวกัน
+- **Audit Log ครบ** — ใครอนุมัติ/reject อะไร เมื่อไหร่ พร้อม comment
+
+---
+
+
+## ทำไมถึงทำโปรเจคนี้
+
+จากประสบการณ์ ทั้งเอกสารรออนุมัติและงานที่ถูก assign มักถูกมองข้ามเพราะไม่มีใครเปิด Odoo เช็ค ทั้งที่ระบบข้างในมีครบอยู่แล้ว แค่ขาดช่องทางแจ้งเตือนที่คนเห็นจริง — โดยเฉพาะกับผู้อนุมัติที่ไม่ถนัด ERP และมักทำงานผ่านมือถือ โปรเจคนี้แก้ปัญหานั้นตรงจุด โดยใช้ LINE ที่ทุกคนเปิดอยู่แล้วทั้งวัน
+
+---
 
